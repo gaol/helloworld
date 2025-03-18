@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write  #this line is needed to request write permissions for packages
     steps:
       - uses: actions/checkout@v4
 
