@@ -29,8 +29,8 @@ jobs:
       - name: Push the Native Docker Image to GitHub registry
         run: |
           MVN_VERSION="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
-          BUILT_IMG=runner/${{ github.repository_name }}:$MVN_VERSION
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ github.repository_name }}:latest
+          BUILT_IMG=runner/helloworld:$MVN_VERSION
+          IMAGE_ID=ghcr.io/gaol/helloworld:latest
           docker tag $BUILT_IMG $IMAGE_ID
           docker push $IMAGE_ID
 
