@@ -23,14 +23,12 @@ jobs:
       - name: Build Native Docker Image
         run: ./mvnw clean install -Pnative  -Dquarkus.native.container-build=true
 
-      - name: Login to the registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-
       - name: Push the Native Docker Image to GitHub registry
         run: |
           MVN_VERSION="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
           BUILT_IMG=runner/helloworld:$MVN_VERSION
           IMAGE_ID=ghcr.io/gaol/helloworld:latest
           docker tag $BUILT_IMG $IMAGE_ID
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
           docker push $IMAGE_ID
 
