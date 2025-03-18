@@ -5,8 +5,6 @@ name: CI build
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
@@ -21,5 +19,18 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Build
-        run: ./mvnw verify -B
+      # this will produce a local image called: lgao/helloworld:1.0.0-SNAPSHOT
+      - name: Build Native Docker Image
+        run: ./mvnw clean install -Pnative  -Dquarkus.native.container-build=true
+
+      - name: Login to the registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+      - name: Push the Native Docker Image to GitHub registry
+        run: |
+          MVN_VERSION="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          BUILT_IMG=${{ github.repository_owner }}/${{ github.repository_name }}:$MVN_VERSION
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ github.repository_name }}:latest
+          docker tag $BUILT_IMG $IMAGE_ID
+          docker push $IMAGE_ID
+
